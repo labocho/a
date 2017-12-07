@@ -1,19 +1,30 @@
 <!doctype html>
+<title></title>
+<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="dist/application.js" defer></script>
 <style type="text/css">
+  [name=frequency] {
+    width: 200px;
+    display: block;
+  }
   .playButton {
     color: #fff;
+    font-size: 20px;
     text-align: center;
     line-height: 200px;
     font-family: sans-serif;
     width: 200px;
     height: 200px;
-    border-radius: 100px;
+    border-radius: 10px;
     background: #ccc;
   }
 </style>
+<select name="frequency">
+</select>
 <div id="playButton" class="playButton">
-  Please A
+  A
 </div>
 <!-- dummy audio to play sound when silent mode enabled -->
 <audio src="dummy.m4a">

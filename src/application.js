@@ -49,23 +49,36 @@
   }
 
   Voice.DEFAULT_VALUES = {
-    volume: 0.5,
+    volume: 0.7,
     frequency: 440,
     attack: 0.02,
     release: 0.1,
   };
-
 
   class Application {
     run() {
       this.context = new (window["AudioContext"] || window["webkitAudioContext"])();
       this.voice = null;
 
+      const select = document.querySelector("[name=frequency]");
+      for (let i = 349; i <=499; i++) {
+        const option = document.createElement("option");
+        option.setAttribute("value", i.toString());
+        option.innerHTML = i.toString();
+        select.appendChild(option);
+      }
+
+      this.updateFrequency(this.getFrequencyFromHash());
+
+      document.querySelector("[name=frequency]").addEventListener("change", this.onFrequencyChange.bind(this));
       document.querySelector("#playButton").addEventListener("touchstart", this.toggle.bind(this));
     }
 
     play() {
-      this.voice = new Voice({context: this.context});
+      this.voice = new Voice({
+        context: this.context,
+        frequency: this.frequency,
+      });
       this.voice.play();
     }
 
@@ -79,6 +92,28 @@
         this.stop()
       } else {
         this.play()
+      }
+    }
+
+    updateFrequency(freq) {
+      this.frequency = freq;
+      document.querySelector("[name=frequency]").value = freq;
+      document.querySelector("title").innerHTML = `A=${freq}Hz`;
+    }
+
+    getFrequencyFromHash() {
+      const matches = location.hash.match(/#(\d+)/);
+      if (matches === null) { 
+        return Voice.DEFAULT_VALUES.frequency;
+      }
+      return window.parseInt(matches[1], 10);
+    }
+
+    onFrequencyChange(e) {
+      const freq = window.parseInt(e.target.value);
+      if (!isNaN(freq)) {
+        location.hash = `#${freq}`;
+        this.updateFrequency(freq);
       }
     }
   }
