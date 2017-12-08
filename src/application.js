@@ -66,8 +66,12 @@
       this.config.on("change frequency", ()=> {
         document.querySelector("[name=frequency]").value = this.config.frequency;
         document.querySelector("title").innerHTML = `${this.config.frequency}Hz`;
+      });
+
+      this.config.on("change", ()=> {
         window.history.replaceState(null, null, Parameters.encode(this.config.asParameters()));
       });
+
 
       document.querySelector("[name=frequency]").addEventListener("change", (e)=> {
         const freq = window.parseInt(e.target.value);
@@ -85,6 +89,7 @@
       this.voice = new Voice({
         context: this.context,
         frequency: this.config.frequency,
+        volume: this.config.volume,
       });
       this.voice.play();
 
@@ -162,11 +167,14 @@
       } else {
         this.frequency = Voice.DEFAULT_VALUES.frequency;
       }
+
+      if (params.v) { this.volume = params.v; }
     }
 
     asParameters() {
       const params = {};
       if (this.frequency) { params.f = this.frequency; }
+      if (this.volume) { params.v = this.volume; }
       return params;
     }
 
@@ -179,6 +187,20 @@
       if (old !== v) {
         this._frequency = v;
         this.trigger("change frequency", v);
+        this.trigger("change");
+      }
+    }
+
+    get volume() {
+      return this._volume;
+    }
+
+    set volume(v) {
+      const old = this._volume;
+      if (old !== v) {
+        this._volume = v;
+        this.trigger("change volume", v);
+        this.trigger("change");
       }
     }
 

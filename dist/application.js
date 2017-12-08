@@ -93,6 +93,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         this.config.on("change frequency", function () {
           document.querySelector("[name=frequency]").value = _this2.config.frequency;
           document.querySelector("title").innerHTML = _this2.config.frequency + "Hz";
+        });
+
+        this.config.on("change", function () {
           window.history.replaceState(null, null, Parameters.encode(_this2.config.asParameters()));
         });
 
@@ -112,7 +115,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function play() {
         this.voice = new Voice({
           context: this.context,
-          frequency: this.config.frequency
+          frequency: this.config.frequency,
+          volume: this.config.volume
         });
         this.voice.play();
 
@@ -227,6 +231,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         } else {
           this.frequency = Voice.DEFAULT_VALUES.frequency;
         }
+
+        if (params.v) {
+          this.volume = params.v;
+        }
       }
     }, {
       key: "asParameters",
@@ -234,6 +242,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var params = {};
         if (this.frequency) {
           params.f = this.frequency;
+        }
+        if (this.volume) {
+          params.v = this.volume;
         }
         return params;
       }
@@ -266,6 +277,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         if (old !== v) {
           this._frequency = v;
           this.trigger("change frequency", v);
+          this.trigger("change");
+        }
+      }
+    }, {
+      key: "volume",
+      get: function get() {
+        return this._volume;
+      },
+      set: function set(v) {
+        var old = this._volume;
+        if (old !== v) {
+          this._volume = v;
+          this.trigger("change volume", v);
+          this.trigger("change");
         }
       }
     }]);
