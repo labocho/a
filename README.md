@@ -1,7 +1,6 @@
 # Development
 
-    npm install -g babel-cli
-    npm install -g babel-preset-es2015
+    yarn install
 
     rake compile
     rake watch
