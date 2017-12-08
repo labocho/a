@@ -1,11 +1,3 @@
-<!doctype html>
-<title></title>
-<meta content='width=device-width, minimum-scale=1, maximum-scale=1, initial-scale=1, user-scalable=no' name='viewport'>
-<meta content='yes' name='apple-mobile-web-app-capable'>
-<meta content='black' name='apple-mobile-web-app-status-bar-style'>
-<link href='images/noun_1848.png' rel='apple-touch-icon'>
-<script defer='' src='dist/application.js'></script>
-<style>
 html, body {
   height: 100%;
   margin: 0;
@@ -66,18 +58,3 @@ header {
 .playButton-label.isPlay .playButton-label-pause {
   display: inline;
 }
-
-</style>
-<header>
-<select name='frequency'></select>
-</header>
-<article class='buttonArea'>
-<div class='playButton' id='playButton'>
-<div class='playButton-label isPause' id='playButton-label'>
-<img alt='play' class='playButton-label-play' src='images/font-awesome_4-7-0_play_512_0_000000_none.png'>
-<img alt='pause' class='playButton-label-pause' src='images/font-awesome_4-7-0_pause_512_0_000000_none.png'>
-</div>
-</div>
-<!-- dummy audio to play sound when silent mode enabled -->
-<audio src='dummy.m4a'></audio>
-</article>

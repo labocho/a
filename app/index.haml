@@ -3,18 +3,18 @@
 %meta{content: "width=device-width, minimum-scale=1, maximum-scale=1, initial-scale=1, user-scalable=no", name: "viewport"}
 %meta{content: "yes", name: "apple-mobile-web-app-capable"}
 %meta{content: "black", name: "apple-mobile-web-app-status-bar-style"}
-%link{rel: "apple-touch-icon", href: "images/noun_1848.png"}
-%script{defer: "", src: "dist/application.js"}
+%link{rel: "apple-touch-icon", href: "assets/noun_1848.png"}
+%script{defer: "", src: "js/application.js"}
 %style
-  = include_file "src/application.css"
+  = include_file "app/css/application.css"
 
 %header
   %select{name: "frequency"}
 %article.buttonArea
   #playButton.playButton
     #playButton-label.playButton-label.isPause
-      %img.playButton-label-play{alt: "play", src: "images/font-awesome_4-7-0_play_512_0_000000_none.png"}
-      %img.playButton-label-pause{alt: "pause", src: "images/font-awesome_4-7-0_pause_512_0_000000_none.png"}
+      %img.playButton-label-play{alt: "play", src: "assets/font-awesome_4-7-0_play_512_0_000000_none.png"}
+      %img.playButton-label-pause{alt: "pause", src: "assets/font-awesome_4-7-0_pause_512_0_000000_none.png"}
   / dummy audio to play sound when silent mode enabled
-  %audio{src: "dummy.m4a"}
+  %audio{src: "assets/dummy.m4a"}
 

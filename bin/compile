@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+require "rake"
+require "fileutils"
+require "shellwords"
+
+include FileUtils
+
+ARGV.each do |path|
+  puts "compile #{path}"
+  mkdir_p File.dirname("public/#{path}")
+  case File.extname(path)
+  when ".haml"
+    html = path.gsub(/\.haml/, ".html")
+    sh "haml -r ./lib/helpers.rb app/#{path.shellescape} > public/#{html.shellescape}"
+  when ".js"
+    sh "babel", "-o", "public/#{path}", "app/#{path}"
+  else
+    cp "app/#{path}", "public/#{path}"
+  end
+end

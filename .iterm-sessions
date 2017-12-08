@@ -1,2 +1,2 @@
-server: http .
+server: rake server
 watch: rake watch
