@@ -6,15 +6,26 @@ require "shellwords"
 include FileUtils
 
 ARGV.each do |path|
-  puts "compile #{path}"
-  mkdir_p File.dirname("public/#{path}")
-  case File.extname(path)
-  when ".haml"
-    html = path.gsub(/\.haml/, ".html")
-    sh "haml -r ./lib/helpers.rb app/#{path.shellescape} > public/#{html.shellescape}"
-  when ".js"
-    sh "babel", "-o", "public/#{path}", "app/#{path}"
+  if File.exists?("app/#{path}")
+    puts "compile #{path}"
+    mkdir_p File.dirname("public/#{path}")
+    case File.extname(path)
+    when ".haml"
+      html = path.gsub(/\.haml/, ".html")
+      sh "haml -r ./lib/helpers.rb app/#{path.shellescape} > public/#{html.shellescape}"
+    when ".js"
+      sh "babel", "-o", "public/#{path}", "app/#{path}"
+    else
+      cp "app/#{path}", "public/#{path}"
+    end
   else
-    cp "app/#{path}", "public/#{path}"
+    puts "removed #{path}"
+    case File.extname(path)
+    when ".haml"
+      html = path.gsub(/\.haml/, ".html")
+      rm_rf "public/#{html}"
+    else
+      rm_rf "public/#{path}"
+    end
   end
 end

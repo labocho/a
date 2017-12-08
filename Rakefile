@@ -8,7 +8,15 @@ task "compile" do
 end
 
 task "watch" do
-  sh "babel", "-w", "-o", "dist/application.js", "src/application.js"
+  require "listen"
+  listener = Listen.to("app", relative: true) do |modified, added, removed|
+    (modified | added | removed).each do |path|
+      path = path.gsub(/^app\//, "")
+      ruby "bin/compile", path
+    end
+  end
+  listener.start # not blocking
+  sleep
 end
 
 task "server" do

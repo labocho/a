@@ -1,6 +1,5 @@
 # Development
 
     yarn install
-
+    bundle install
     rake compile
-    rake watch
