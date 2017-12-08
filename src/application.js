@@ -98,7 +98,7 @@
     updateFrequency(freq) {
       this.frequency = freq;
       document.querySelector("[name=frequency]").value = freq;
-      document.querySelector("title").innerHTML = `A=${freq}Hz`;
+      document.querySelector("title").innerHTML = `${freq}Hz`;
     }
 
     getFrequencyFromHash() {
