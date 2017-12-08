@@ -1,5 +1,5 @@
 task "compile" do
-  rm_rf "public"
+  rm_rf "docs"
   Dir.glob("app/**/*") do |path|
     next unless File.file?(path)
     path.gsub!(/^app\//, "")
@@ -20,5 +20,5 @@ task "watch" do
 end
 
 task "server" do
-  ruby "-run", "-e", "httpd", "--", "-p", "3000", "public"
+  ruby "-run", "-e", "httpd", "--", "-p", "3000", "docs"
 end

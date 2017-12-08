@@ -8,24 +8,24 @@ include FileUtils
 ARGV.each do |path|
   if File.exists?("app/#{path}")
     puts "compile #{path}"
-    mkdir_p File.dirname("public/#{path}")
+    mkdir_p File.dirname("docs/#{path}")
     case File.extname(path)
     when ".haml"
       html = path.gsub(/\.haml/, ".html")
-      sh "haml -r ./lib/helpers.rb app/#{path.shellescape} > public/#{html.shellescape}"
+      sh "haml -r ./lib/helpers.rb app/#{path.shellescape} > docs/#{html.shellescape}"
     when ".js"
-      sh "babel", "-o", "public/#{path}", "app/#{path}"
+      sh "babel", "-o", "docs/#{path}", "app/#{path}"
     else
-      cp "app/#{path}", "public/#{path}"
+      cp "app/#{path}", "docs/#{path}"
     end
   else
     puts "removed #{path}"
     case File.extname(path)
     when ".haml"
       html = path.gsub(/\.haml/, ".html")
-      rm_rf "public/#{html}"
+      rm_rf "docs/#{html}"
     else
-      rm_rf "public/#{path}"
+      rm_rf "docs/#{path}"
     end
   end
 end
