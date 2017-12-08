@@ -82,15 +82,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function run() {
         this.context = new (window["AudioContext"] || window["webkitAudioContext"])();
         this.voice = null;
-
-        var select = document.querySelector("[name=frequency]");
-        for (var i = 349; i <= 499; i++) {
-          var option = document.createElement("option");
-          option.setAttribute("value", i.toString());
-          option.innerHTML = i.toString();
-          select.appendChild(option);
-        }
-
+        this.initializeFrequencyField();
         this.updateFrequency(this.getFrequencyFromHash());
 
         document.querySelector("[name=frequency]").addEventListener("change", this.onFrequencyChange.bind(this));
@@ -104,12 +96,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           frequency: this.frequency
         });
         this.voice.play();
+
+        var label = document.querySelector(".playButton-label");
+        label.classList.add("isPlay");
+        label.classList.remove("isPause");
       }
     }, {
       key: "stop",
       value: function stop() {
         this.voice.stop();
         this.voice = null;
+
+        var label = document.querySelector(".playButton-label");
+        label.classList.add("isPause");
+        label.classList.remove("isPlay");
       }
     }, {
       key: "toggle",
@@ -143,6 +143,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         if (!isNaN(freq)) {
           location.hash = "#" + freq;
           this.updateFrequency(freq);
+        }
+      }
+    }, {
+      key: "initializeFrequencyField",
+      value: function initializeFrequencyField() {
+        var select = document.querySelector("[name=frequency]");
+        for (var i = 349; i <= 499; i++) {
+          var option = document.createElement("option");
+          option.setAttribute("value", i.toString());
+          option.innerHTML = "A = " + i + "Hz";
+          select.appendChild(option);
         }
       }
     }]);
