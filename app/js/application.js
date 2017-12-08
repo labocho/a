@@ -81,6 +81,9 @@
       });
 
       document.querySelector("#playButton").addEventListener("touchstart", this.toggle.bind(this));
+      document.querySelector("#playButton").addEventListener("mousedown", this.toggle.bind(this));
+      // disable scroll
+      window.addEventListener("touchmove", e => e.preventDefault());
 
       this.config.updateFromParameters();
     }
@@ -107,7 +110,8 @@
       label.classList.remove("isPlay");
     }
 
-    toggle() {
+    toggle(e) {
+      e.preventDefault(); // trigger by touchstart or mousedown (not both)
       if (this.voice) {
         this.stop()
       } else {

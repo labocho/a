@@ -107,6 +107,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         });
 
         document.querySelector("#playButton").addEventListener("touchstart", this.toggle.bind(this));
+        document.querySelector("#playButton").addEventListener("mousedown", this.toggle.bind(this));
+        // disable scroll
+        window.addEventListener("touchmove", function (e) {
+          return e.preventDefault();
+        });
 
         this.config.updateFromParameters();
       }
@@ -136,7 +141,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       }
     }, {
       key: "toggle",
-      value: function toggle() {
+      value: function toggle(e) {
+        e.preventDefault(); // trigger by touchstart or mousedown (not both)
         if (this.voice) {
           this.stop();
         } else {
