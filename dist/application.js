@@ -1,5 +1,7 @@
 "use strict";
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -80,20 +82,37 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     _createClass(Application, [{
       key: "run",
       value: function run() {
+        var _this2 = this;
+
         this.context = new (window["AudioContext"] || window["webkitAudioContext"])();
         this.voice = null;
-        this.initializeFrequencyField();
-        this.updateFrequency(this.getFrequencyFromHash());
+        this.config = new Config();
 
-        document.querySelector("[name=frequency]").addEventListener("change", this.onFrequencyChange.bind(this));
+        this.initializeFrequencyField();
+
+        this.config.on("change frequency", function () {
+          document.querySelector("[name=frequency]").value = _this2.config.frequency;
+          document.querySelector("title").innerHTML = _this2.config.frequency + "Hz";
+          window.history.replaceState(null, null, Parameters.encode(_this2.config.asParameters()));
+        });
+
+        document.querySelector("[name=frequency]").addEventListener("change", function (e) {
+          var freq = window.parseInt(e.target.value);
+          if (!isNaN(freq)) {
+            _this2.config.frequency = freq;
+          }
+        });
+
         document.querySelector("#playButton").addEventListener("touchstart", this.toggle.bind(this));
+
+        this.config.updateFromParameters();
       }
     }, {
       key: "play",
       value: function play() {
         this.voice = new Voice({
           context: this.context,
-          frequency: this.frequency
+          frequency: this.config.frequency
         });
         this.voice.play();
 
@@ -121,31 +140,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
       }
     }, {
-      key: "updateFrequency",
-      value: function updateFrequency(freq) {
-        this.frequency = freq;
-        document.querySelector("[name=frequency]").value = freq;
-        document.querySelector("title").innerHTML = freq + "Hz";
-      }
-    }, {
-      key: "getFrequencyFromHash",
-      value: function getFrequencyFromHash() {
-        var matches = location.hash.match(/#(\d+)/);
-        if (matches === null) {
-          return Voice.DEFAULT_VALUES.frequency;
-        }
-        return window.parseInt(matches[1], 10);
-      }
-    }, {
-      key: "onFrequencyChange",
-      value: function onFrequencyChange(e) {
-        var freq = window.parseInt(e.target.value);
-        if (!isNaN(freq)) {
-          location.hash = "#" + freq;
-          this.updateFrequency(freq);
-        }
-      }
-    }, {
       key: "initializeFrequencyField",
       value: function initializeFrequencyField() {
         var select = document.querySelector("[name=frequency]");
@@ -159,6 +153,124 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }]);
 
     return Application;
+  }();
+
+  var Parameters = function () {
+    function Parameters() {
+      _classCallCheck(this, Parameters);
+    }
+
+    _createClass(Parameters, null, [{
+      key: "decode",
+
+      // Parameters.decode(location.search)
+      value: function decode(s) {
+        var matches = s.match(/^\?(.+)$/);
+        if (matches === null) {
+          return {};
+        }
+        var params = {};
+
+        matches[1].split("&").forEach(function (kv) {
+          var k = void 0,
+              v = void 0;
+
+          var _kv$split$map = kv.split("=").map(function (e) {
+            return window.decodeURIComponent(e);
+          });
+
+          var _kv$split$map2 = _slicedToArray(_kv$split$map, 2);
+
+          k = _kv$split$map2[0];
+          v = _kv$split$map2[1];
+
+          params[k] = v;
+        });
+        return params;
+      }
+
+      // location.search = Parameters.encode({foo: 1})
+
+    }, {
+      key: "encode",
+      value: function encode(o) {
+        var kv = [];
+
+        for (var k in o) {
+          kv.push(window.encodeURIComponent(k) + "=" + window.encodeURIComponent(o[k]));
+        }
+
+        if (kv.length === 0) {
+          return "";
+        }
+
+        return "?" + kv.join("&");
+      }
+    }]);
+
+    return Parameters;
+  }();
+
+  var Config = function () {
+    function Config() {
+      _classCallCheck(this, Config);
+
+      this.events = {};
+    }
+
+    _createClass(Config, [{
+      key: "updateFromParameters",
+      value: function updateFromParameters() {
+        var params = Parameters.decode(location.search);
+        if (params.f) {
+          this.frequency = params.f;
+        } else {
+          this.frequency = Voice.DEFAULT_VALUES.frequency;
+        }
+      }
+    }, {
+      key: "asParameters",
+      value: function asParameters() {
+        var params = {};
+        if (this.frequency) {
+          params.f = this.frequency;
+        }
+        return params;
+      }
+    }, {
+      key: "on",
+      value: function on(name, callback) {
+        this.events[name] = this.events[name] || [];
+        this.events[name].push(callback);
+      }
+    }, {
+      key: "trigger",
+      value: function trigger(name) {
+        var callbacks = this.events[name] || [];
+
+        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
+        }
+
+        for (var i = 0; i < callbacks.length; i++) {
+          callbacks[i].apply(this, args);
+        }
+      }
+    }, {
+      key: "frequency",
+      get: function get() {
+        return this._frequency;
+      },
+      set: function set(v) {
+        var old = this._frequency;
+        if (old !== v) {
+          this._frequency = v;
+          this.trigger("change frequency", v);
+        }
+      }
+    }]);
+
+    return Config;
   }();
 
   new Application().run();

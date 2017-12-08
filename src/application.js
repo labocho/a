@@ -59,17 +59,32 @@
     run() {
       this.context = new (window["AudioContext"] || window["webkitAudioContext"])();
       this.voice = null;
-      this.initializeFrequencyField()
-      this.updateFrequency(this.getFrequencyFromHash());
+      this.config = new Config();
 
-      document.querySelector("[name=frequency]").addEventListener("change", this.onFrequencyChange.bind(this));
+      this.initializeFrequencyField();
+
+      this.config.on("change frequency", ()=> {
+        document.querySelector("[name=frequency]").value = this.config.frequency;
+        document.querySelector("title").innerHTML = `${this.config.frequency}Hz`;
+        window.history.replaceState(null, null, Parameters.encode(this.config.asParameters()));
+      });
+
+      document.querySelector("[name=frequency]").addEventListener("change", (e)=> {
+        const freq = window.parseInt(e.target.value);
+        if (!isNaN(freq)) {
+          this.config.frequency = freq;
+        }
+      });
+
       document.querySelector("#playButton").addEventListener("touchstart", this.toggle.bind(this));
+
+      this.config.updateFromParameters();
     }
 
     play() {
       this.voice = new Voice({
         context: this.context,
-        frequency: this.frequency,
+        frequency: this.config.frequency,
       });
       this.voice.play();
 
@@ -95,28 +110,6 @@
       }
     }
 
-    updateFrequency(freq) {
-      this.frequency = freq;
-      document.querySelector("[name=frequency]").value = freq;
-      document.querySelector("title").innerHTML = `${freq}Hz`;
-    }
-
-    getFrequencyFromHash() {
-      const matches = location.hash.match(/#(\d+)/);
-      if (matches === null) {
-        return Voice.DEFAULT_VALUES.frequency;
-      }
-      return window.parseInt(matches[1], 10);
-    }
-
-    onFrequencyChange(e) {
-      const freq = window.parseInt(e.target.value);
-      if (!isNaN(freq)) {
-        location.hash = `#${freq}`;
-        this.updateFrequency(freq);
-      }
-    }
-
     initializeFrequencyField() {
       const select = document.querySelector("[name=frequency]");
       for (let i = 349; i <=499; i++) {
@@ -124,6 +117,81 @@
         option.setAttribute("value", i.toString());
         option.innerHTML = `A = ${i}Hz`;
         select.appendChild(option);
+      }
+    }
+  }
+
+  class Parameters {
+    // Parameters.decode(location.search)
+    static decode(s) {
+      const matches = s.match(/^\?(.+)$/)
+      if (matches === null) { return {}; }
+      let params = {};
+
+      matches[1].split("&").forEach(function(kv){
+        let k, v;
+        [k, v] = kv.split("=").map(e => window.decodeURIComponent(e));
+        params[k] = v;
+      })
+      return params;
+    }
+
+    // location.search = Parameters.encode({foo: 1})
+    static encode(o) {
+      let kv = [];
+
+      for (const k in o) {
+        kv.push(window.encodeURIComponent(k) + "=" + window.encodeURIComponent(o[k]));
+      }
+
+      if (kv.length === 0) { return ""; }
+
+      return "?" + kv.join("&");
+    }
+  }
+
+  class Config {
+    constructor() {
+      this.events = {};
+    }
+
+    updateFromParameters() {
+      const params = Parameters.decode(location.search);
+      if (params.f) {
+        this.frequency = params.f;
+      } else {
+        this.frequency = Voice.DEFAULT_VALUES.frequency;
+      }
+    }
+
+    asParameters() {
+      const params = {};
+      if (this.frequency) { params.f = this.frequency; }
+      return params;
+    }
+
+    get frequency() {
+      return this._frequency;
+    }
+
+    set frequency(v) {
+      const old = this._frequency;
+      if (old !== v) {
+        this._frequency = v;
+        this.trigger("change frequency", v);
+      }
+    }
+
+    on(name, callback) {
+      this.events[name] = this.events[name] || [];
+      this.events[name].push(callback);
+    }
+
+    trigger(name, ...args) {
+      const callbacks = this.events[name] || [];
+
+      for (let i = 0; i < callbacks.length; i++) {
+        callbacks[i].apply(this, args);
       }
     }
   }
