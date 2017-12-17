@@ -49,7 +49,7 @@
   }
 
   Voice.DEFAULT_VALUES = {
-    volume: 0.7,
+    volume: 1.0,
     frequency: 440,
     attack: 0.02,
     release: 0.1,
